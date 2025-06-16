@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Yandex Music Downloader</title>
+  <style>
+    body {
+      width: 450px;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .label-text {
+      display: block;
+      margin-bottom: 8px;
+      color: #e0e0e0;
+      font-size: 0.95em;
+    }
+    .input-container {
+      position: relative;
+      margin-bottom: 15px;
+    }
+    .input-container input {
+      width: calc(100% - 32px);
+      padding: 10px 40px 10px 12px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+    .input-container input:focus {
+      border-color: #ffba00;
+      outline: none;
+    }
+    .input-container i {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #666;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .input-container i.showing {
+      color: #ffba00;
+    }
+    .filename-input {
+      width: calc(100% - 12px);
+      padding: 10px 12px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      background-color: #ffba00;
+      color: #121212;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    button:hover {
+      background-color: #e0a100;
+      transform: translateY(-2px);
+    }
+    .error-message, .success-message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+      display: none;
+    }
+    .error-message {
+      background: rgba(255, 82, 82, 0.9);
+      color: #fff;
+    }
+    .success-message {
+      background: rgba(76, 175, 80, 0.9);
+      color: #fff;
+    }
+    .error-message.show, .success-message.show {
+      display: block;
+    }
+    .instructions-toggle {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      background-color: #ffba00;
+      color: #121212;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .instructions-toggle:hover {
+      background-color: #e0a100;
+      transform: translateY(-2px);
+    }
+    .instructions-toggle i {
+      margin-right: 8px;
+    }
+    .instructions-content {
+      display: none;
+      background-color: #1e1e1e;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .instructions-content.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+    .instructions-content h2 {
+      color: #ffba00;
+      font-size: 1.2em;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+    }
+    .instructions-content h2 i {
+      margin-right: 8px;
+    }
+    .instructions-content p {
+      margin: 5px 0;
+    }
+    .instructions-content ul, .instructions-content ol {
+      margin: 5px 0;
+      padding-left: 20px;
+    }
+    .instructions-content li {
+      margin-bottom: 5px;
+    }
+    .instructions-content a {
+      color: #ffba00;
+      text-decoration: none;
+    }
+    .instructions-content a:hover {
+      color: #e0a100;
+    }
+    .instructions-content code {
+      background-color: #2a2a2a;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .instructions-content .format-link {
+      display: inline-block;
+      color: #ffba00;
+      text-decoration: none;
+      padding: 2px 6px;
+      border-radius: 3px;
+      transition: background-color 0.3s, color 0.3s;
+      cursor: pointer;
+    }
+    .instructions-content .format-link:hover {
+      background-color: #2a2a2a;
+      color: #e0a100;
+    }
+    .instruction {
+      margin-top: 10px;
+      margin-bottom: 15px;
+      font-size: 0.9em;
+      color: #888;
+    }
+    .instruction a {
+      color: #ffba00;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .instruction a:hover {
+      color: #e0a100;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="error-message" id="errorMessage"></div>
+  <div class="success-message" id="successMessage"></div>
+  <button class="instructions-toggle" id="instructionsToggle">
+    <span><i class="fas fa-book"></i> Инструкция</span>
+    <i class="fas fa-chevron-down" id="toggleIcon"></i>
+  </button>
+  <div class="instructions-content" id="instructionsContent">
+    <h2><i class="fas fa-download"></i> Скачивание треков</h2>
+    <p>После ввода токена:</p>
+    <ul>
+      <li>Перейдите на Яндекс.Музыку.</li>
+      <li>Найдите трек.</li>
+      <li>Нажмите на иконку скачивания рядом с треком.</li>
+    </ul>
+
+    <h2><i class="fas fa-cog"></i> Формат имени файла</h2>
+    <p>Настройте название файлов:</p>
+    <ul>
+      <li>Введите формат в поле ниже или выберите один из примеров, нажав на него:</li>
+      <li><code>{artist}</code> - исполнитель</li>
+      <li><code>{title}</code> - название</li>
+      <li><code>{version}</code> - версия трека</li>
+      <li><code>{bitrate}</code> - битрейт (например, 320)</li>
+      <li>Примеры форматов (нажмите для выбора):</li>
+      <li><a class="format-link" data-pattern="{artist} - {title}"><code>{artist} - {title}</code></a> → Исполнитель - Название</li>
+      <li><a class="format-link" data-pattern="{title} by {artist}"><code>{title} by {artist}</code></a> → Название by Исполнитель</li>
+      <li><a class="format-link" data-pattern="{artist} | {title} ({bitrate}kbps)"><code>{artist} | {title} ({bitrate}kbps)</code></a> → Исполнитель | Название (320kbps)</li>
+      <li><a class="format-link" data-pattern="{title} [{version}]"><code>{title} [{version}]</code></a> → Название [Ремикс]</li>
+      <li><a class="format-link" data-pattern="{artist} - {title} - {bitrate}kbps"><code>{artist} - {title} - {bitrate}kbps</code></a> → Исполнитель - Название - 320kbps</li>
+      <li><a class="format-link" data-pattern="{title} ({artist})"><code>{title} ({artist})</code></a> → Название (Исполнитель)</li>
+      <li><a class="format-link" data-pattern="{artist} - {title} [{version}]"><code>{artist} - {title} [{version}]</code></a> → Исполнитель - Название [Ремикс]</li>
+      <li><a class="format-link" data-pattern="{title} - {bitrate}kbps"><code>{title} - {bitrate}kbps</code></a> → Название - 320kbps</li>
+      <li><a class="format-link" data-pattern="{artist}/{title}"><code>{artist}/{title}</code></a> → Исполнитель/Название</li>
+      <li><a class="format-link" data-pattern="{title} - {artist} ({bitrate})"><code>{title} - {artist} ({bitrate})</code></a> → Название - Исполнитель (320)</li>
+      <li><a class="format-link" data-pattern="{bitrate}kbps - {artist} - {title}"><code>{bitrate}kbps - {artist} - {title}</code></a> → 320kbps - Исполнитель - Название</li>
+      <li><a class="format-link" data-pattern="{artist} ~ {title}"><code>{artist} ~ {title}</code></a> → Исполнитель ~ Название</li>
+      <li><a class="format-link" data-pattern="{title} {{version}}"><code>{title} {{version}}</code></a> → Название {Ремикс}</li>
+      <li><a class="format-link" data-pattern="{artist} - {title} ({bitrate})"><code>{artist} - {title} ({bitrate})</code></a> → Исполнитель - Название (320)</li>
+      <li><a class="format-link" data-pattern="{title} - {artist} [{version}]"><code>{title} - {artist} [{version}]</code></a> → Название - Исполнитель [Ремикс]</li>
+      <li><a class="format-link" data-pattern="{artist} - {bitrate}kbps - {title}"><code>{artist} - {bitrate}kbps - {title}</code></a> → Исполнитель - 320kbps - Название</li>
+      <li><a class="format-link" data-pattern="{title}"><code>{title}</code></a> → Название</li>
+      <li><a class="format-link" data-pattern="{artist} - {title} - {version}"><code>{artist} - {title} - {version}</code></a> → Исполнитель - Название - Ремикс</li>
+      <li><a class="format-link" data-pattern="{bitrate}kbps_{artist}_{title}"><code>{bitrate}kbps_{artist}_{title}</code></a> → 320kbps_Исполнитель_Название</li>
+      <li><a class="format-link" data-pattern="{title} - {artist}"><code>{title} - {artist}</code></a> → Название - Исполнитель</li>
+      <li>Нажмите "Сохранить формат" для ручного сохранения или выберите пример выше для автоматического сохранения.</li>
+    </ul>
+  </div>
+  <div class="label-text">Ваш токен Яндекс.Музыки:</div>
+  <div class="input-container">
+    <i class="fas fa-key"></i>
+    <input type="password" id="tokenInput" placeholder="Ваш токен" disabled>
+  </div>
+  <div class="instruction">
+    Токен находится по
+    <a href="https://github.com/MarshalX/yandex-music-api/discussions/513#discussioncomment-2729781" target="_blank">этому гайду</a>.
+  </div>
+  <div class="label-text">Формат имени файла:</div>
+  <div class="input-container">
+    <input type="text" id="filenamePatternInput" class="filename-input" placeholder="{artist} - {title}">
+  </div>
+  <button id="saveFilenameButton">Сохранить формат</button>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="popup.js"></script>
+</body>
+</html>
