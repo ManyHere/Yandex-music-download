@@ -20,7 +20,7 @@
 ![image](https://github.com/user-attachments/assets/6daeb1f4-c42f-494f-967f-8c9094ca0e09)
 - Требует токен Яндекс.Музыки, который можно получить через интерфейс расширения.
 
-![image](![image](https://github.com/user-attachments/assets/20982928-9818-4924-bbaf-ad26c9731104)
+![image](https://github.com/user-attachments/assets/20982928-9818-4924-bbaf-ad26c9731104)
 
 
 ## Требования
